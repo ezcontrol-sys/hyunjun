@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.datatables.net/t/bs-3.3.6/jqc-1.12.0,dt-1.10.11/datatables.min.css"/>
+    <script scr="https://cdn.datatables.net/t/bs-3.3.6/jqc-1.12.0,dt-1.10.11/datatables.min.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+ 
+    <input type="text" id="search" style="width:300px;height:40px;font-size:18px; margin-bottom: 12px;" onkeyup="searchTable()" placeholder="검색...          ">
+    <div style="width:100%; overflow:auto; white-space: nowrap;">
+        <table class="table" id="myTable" width="100%">
+            <style>
+                table{
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                // tr:nth-child(odd){
+                //    background: #f0f0f0;
+                //}
+                th {
+                    background: #aaa;
+                    color: white;
+                    font-weight: bold;
+                }
+                th, td {
+                  padding: 6px;
+                  border: 1px solid #ccc;
+                  text-align: left;
+                }
+                #myTable tr:hover { 
+                  background-color: skblue;
+                }
+            </style>
+        
+            <thead>
+                <th>구분</th>
+                <th>현장명</th>
+                <th>주소</th>
+                <th>연락처1</th>
+                <th>연락처2</th>
+                <th>기종</th>
+                <th>PRJ번호</th>
+                <th>특이사항</th>
+                <th>계약</th>
+                <th>제작사</th>
+                <th>제어</th>
+            </thead>
+        </table>
+    </div>
+    <script>
+//        window.onload = function() {
+        loadCSV("site_address.csv");
+//        }
+
+        // CSV 파일을 가져올 URL
+        const csvUrl = 'site_address.csv';
+
+        // fetch API를 사용하여 CSV 파일을 가져오기
+        fetch(csvUrl)
+        .then(response => response.text())
+        .then(data => {
+            // CSV 데이터를 처리하거나 화면에 출력하기
+            console.log(data);
+        });
+
+        // csv 파일 불러오기
+        function loadCSV(file) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                parseCSV(this.responseText);
+            }
+            };
+            xhttp.open("GET", file, true);
+            xhttp.send();
+        }
+
+        function parseCSV(csv) {
+            var lines = csv.split("\n");
+            var table = document.getElementById("myTable");
+
+            for (var i = 0; i < lines.length; i++) {
+                var cells = lines[i].split(",");
+                var row = table.insertRow(-1);
+
+                for (var j = 0; j < cells.length; j++) {
+                    var cell = row.insertCell(-1);
+                    if(j==2) {
+                        cell.innerHTML = '<a style="text-decoration:none; color:black;" href="https://search.naver.com/search.naver?query=' + cells[j] + '">' + cells[j] + '</a>';
+                    } else{
+                        if(j==3 || j==4) cell.innerHTML = '<a style="text-decoration:none; color:black;" href="tel:' + cells[j] + '">' + cells[j] + '</a>';
+                        else cell.innerHTML = cells[j];
+                    } 
+                }
+            }
+        }
+        
+        function searchTable() {
+            // 검색어 가져오기
+            var input = document.getElementById("search");
+            var filter = input.value.toUpperCase();
+
+            // 테이블 내용 가져오기
+            var table = document.getElementById("myTable");
+            var rows = table.getElementsByTagName("tr");
+
+            // 검색어와 일치하는 행 보여주거나 숨기기
+            for (var i = 1; i < rows.length; i++) {
+                var td = rows[i].getElementsByTagName("td");
+                var match = false;
+                for (var j = 0; j < 3; j++) {
+                    var txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (match) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    </script>          
+</body>
+</html>
